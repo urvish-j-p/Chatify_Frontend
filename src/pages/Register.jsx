@@ -2,6 +2,8 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import uploadFile from "../helper/uploadFile";
+import axios from "axios";
+import { notification, Spin } from "antd";
 
 const Register = () => {
   const [data, setData] = useState({
@@ -12,6 +14,7 @@ const Register = () => {
   });
 
   const [uploadPhoto, setUploadPhoto] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   const handleOnChange = (e) => {
@@ -27,16 +30,23 @@ const Register = () => {
 
   const handleUploadPhoto = async (e) => {
     const file = e.target.files[0];
+    setIsUploading(true);
 
-    const uploadedPhoto = await uploadFile(file);
-    setUploadPhoto(file);
+    try {
+      const uploadedPhoto = await uploadFile(file);
+      setUploadPhoto(file);
 
-    setData((prev) => {
-      return {
+      setData((prev) => ({
         ...prev,
         dp: uploadedPhoto?.url,
-      };
-    });
+      }));
+    } catch (error) {
+      notification.error({
+        message: "Failed to upload the photo",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleClose = (e) => {
@@ -45,11 +55,34 @@ const Register = () => {
     setUploadPhoto("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log(data);
+    const URL = `${import.meta.env.VITE_BACKEND_URL}/api/register`;
+
+    try {
+      const response = await axios.post(URL, data);
+
+      notification.success({
+        message: response.data.message,
+      });
+
+      if (response.data.success) {
+        setData({
+          name: "",
+          email: "",
+          password: "",
+          dp: "",
+        });
+
+        navigate("/email");
+      }
+    } catch (error) {
+      notification.error({
+        message: error.response.data.message,
+      });
+    }
   };
 
   return (
@@ -102,11 +135,17 @@ const Register = () => {
             <label htmlFor="dp">
               Profile Pic:
               <div className="h-14 bg-slate-200 flex justify-center items-center border rounded hover:border-primary cursor-pointer">
-                <p className="text-sm max-w-[300px] text-ellipsis line-clamp-1">
-                  {uploadPhoto?.name ? uploadPhoto?.name : "Upload Profile Pic"}
-                </p>
+                {isUploading ? (
+                  <Spin />
+                ) : (
+                  <p className="text-sm max-w-[300px] text-ellipsis line-clamp-1">
+                    {uploadPhoto?.name
+                      ? uploadPhoto?.name
+                      : "Upload Profile Pic"}
+                  </p>
+                )}
 
-                {uploadPhoto?.name && (
+                {uploadPhoto?.name && !isUploading && (
                   <button
                     className="text-lg ml-2 hover:text-red-600"
                     onClick={handleClose}

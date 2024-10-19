@@ -1,5 +1,5 @@
 import React from "react";
-import chatifyIcon from "../../public/chatify.png";
+import chatifyIcon from "../assets/chatify.png";
 
 const AuthLayout = ({ children }) => {
   return (
