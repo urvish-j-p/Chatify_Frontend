@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { notification } from "antd";
 import Avatar from "../components/Avatar";
+import { useDispatch } from "react-redux";
+import { setToken } from "../redux/userSlice";
 
 const CheckPassword = () => {
   const [data, setData] = useState({
@@ -11,6 +13,7 @@ const CheckPassword = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   console.log(location);
 
@@ -52,6 +55,11 @@ const CheckPassword = () => {
       });
 
       if (response.data.success) {
+
+        console.log("token", response?.data?.token)
+        dispatch(setToken(response?.data?.token));
+        localStorage.setItem("token", response?.data?.token);
+
         setData({
           password: "",
         });
