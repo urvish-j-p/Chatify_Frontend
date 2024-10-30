@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoChatbubbleEllipses } from "react-icons/io5";
-import { FaUserPlus } from "react-icons/fa";
+import { FaBullseye, FaUserPlus } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import Avatar from "./Avatar";
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, Input, Button, Upload, notification } from "antd";
+import { Modal, Input, Button, Upload, notification, List } from "antd";
 import axios from "axios";
 import { setUser } from "../redux/userSlice";
 import uploadFile from "../helper/uploadFile";
+import { FiArrowUpLeft } from "react-icons/fi";
 
 const Sidebar = () => {
   const user = useSelector((state) => state?.user);
@@ -18,9 +19,42 @@ const Sidebar = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const dispatch = useDispatch();
+  const [allUser, setAllUser] = useState([]);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const showModal = () => {
     setIsModalOpen(true);
+  };
+
+  const showSearchModal = () => {
+    setIsSearchModalOpen(true);
+  };
+
+  const handleSearch = async (term) => {
+    if (!term) return;
+
+    try {
+      const URL = `${import.meta.env.VITE_BACKEND_URL}/api/searchUser`;
+      const response = await axios.post(
+        URL,
+        { search: term },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setSearchResults(response.data.data);
+      } else {
+        notification.error({
+          message: "Failed to fetch users",
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error while searching for users",
+      });
+    }
   };
 
   const handleOk = async () => {
@@ -56,6 +90,7 @@ const Sidebar = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setIsSearchModalOpen(false);
   };
 
   const handleUploadPhoto = async ({ file }) => {
@@ -91,6 +126,7 @@ const Sidebar = () => {
           <div
             title="Add friend"
             className="w-12 h-12 flex justify-center items-center cursor-pointer hover:bg-slate-200 rounded"
+            onClick={showSearchModal}
           >
             <FaUserPlus size={25} />
           </div>
@@ -116,6 +152,65 @@ const Sidebar = () => {
           </button>
         </div>
       </div>
+
+      <div className="w-full">
+        <div className="h-16 flex items-center">
+          <h2 className="text-xl font-bold p-4 text-slate-800">Message</h2>
+        </div>
+
+        <div className="bg-slate-200 p-[0.5px]"></div>
+
+        <div className="h-[calc(100vh-65px)] overflow-x-hidden overflow-y-auto scrollbar">
+          {allUser.length === 0 && (
+            <div className="mt-20">
+              <div className="flex justify-center items-center my-4 text-slate-500">
+                <FiArrowUpLeft size={50} />
+              </div>
+
+              <p className="text-lg text-center text-slate-400">
+                Explore users to start a conversation!
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Modal
+        title="Search Users"
+        open={isSearchModalOpen}
+        onOk={handleCancel}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Input
+          placeholder="Enter name or email"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            handleSearch(e.target.value);
+          }}
+        />
+        <List
+          itemLayout="horizontal"
+          dataSource={searchResults}
+          renderItem={(item) => {
+            return (
+              <List.Item>
+                <Avatar
+                  name={item.name}
+                  imgUrl={item.dp}
+                  width={40}
+                  height={40}
+                />
+                <div>
+                  <div className="font-semibold">{item.name}</div>
+                  <div className="text-gray-500">{item.email}</div>
+                </div>
+              </List.Item>
+            );
+          }}
+        />
+      </Modal>
 
       <Modal
         title="Edit Info"
