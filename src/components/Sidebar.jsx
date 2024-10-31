@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoChatbubbleEllipses } from "react-icons/io5";
-import { FaBullseye, FaUserPlus } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { FaUserPlus } from "react-icons/fa";
+import { NavLink, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import Avatar from "./Avatar";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +23,7 @@ const Sidebar = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -181,6 +182,7 @@ const Sidebar = () => {
         onOk={handleCancel}
         onCancel={handleCancel}
         footer={null}
+        width={400}
       >
         <Input
           placeholder="Enter name or email"
@@ -193,18 +195,26 @@ const Sidebar = () => {
         <List
           itemLayout="horizontal"
           dataSource={searchResults}
-          renderItem={(item) => {
+          renderItem={(user) => {
             return (
-              <List.Item>
-                <Avatar
-                  name={item.name}
-                  imgUrl={item.dp}
-                  width={40}
-                  height={40}
-                />
-                <div>
-                  <div className="font-semibold">{item.name}</div>
-                  <div className="text-gray-500">{item.email}</div>
+              <List.Item
+                onClick={() => {
+                  navigate(`/${user?._id}`);
+                  setIsSearchModalOpen(false);
+                }}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center space-x-5">
+                  <Avatar
+                    name={user.name}
+                    imgUrl={user.dp}
+                    width={40}
+                    height={40}
+                  />
+                  <div>
+                    <div className="font-semibold">{user.name}</div>
+                    <div className="text-gray-500">{user.email}</div>
+                  </div>
                 </div>
               </List.Item>
             );

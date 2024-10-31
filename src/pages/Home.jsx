@@ -50,12 +50,18 @@ const Home = () => {
         <Outlet />
       </section>
 
-      <div className="lg:flex justify-center items-center flex-col gap-2 hidden">
+      <div
+        className={`justify-center items-center flex-col gap-2 hidden ${
+          !basePath ? "hidden" : "lg:flex"
+        }`}
+      >
         <div className="flex gap-2">
           <img src={chatifyLogo} width={35} />
           <p className="text-2xl text-slate-700">Chatify</p>
         </div>
-        <p className="text-lg mt-2 text-slate-500">Select user to send message</p>
+        <p className="text-lg mt-2 text-slate-500">
+          Select user to send message
+        </p>
       </div>
     </div>
   );
