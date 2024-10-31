@@ -2,15 +2,22 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { logout, setUser } from "../redux/userSlice";
+import {
+  logout,
+  setOnlineUser,
+  setSocketConnection,
+  setUser,
+} from "../redux/userSlice";
 import Sidebar from "../components/Sidebar";
 import chatifyLogo from "../assets/chatify.png";
+import io from "socket.io-client";
 
 const Home = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const basePath = location.pathname === "/";
 
   console.log("Redux user:", user);
   const fetchUserDetails = async () => {
@@ -39,7 +46,24 @@ const Home = () => {
     fetchUserDetails();
   }, []);
 
-  const basePath = location.pathname === "/";
+  useEffect(() => {
+    const socketConnection = io(import.meta.env.VITE_BACKEND_URL, {
+      auth: {
+        token: localStorage.getItem("token"),
+      },
+    });
+
+    socketConnection.on("onlineUser", (data) => {
+      console.log(data);
+      dispatch(setOnlineUser(data));
+    });
+
+    dispatch(setSocketConnection(socketConnection));
+
+    return () => {
+      socketConnection.disconnect();
+    };
+  }, []);
 
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">

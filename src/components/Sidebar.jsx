@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 import { FaUserPlus } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -33,14 +33,16 @@ const Sidebar = () => {
     setIsSearchModalOpen(true);
   };
 
-  const handleSearch = async (term) => {
-    if (!term) return;
+  useEffect(() => {
+    handleSearch("");
+  }, []);
 
+  const handleSearch = async (term) => {
     try {
       const URL = `${import.meta.env.VITE_BACKEND_URL}/api/searchUser`;
       const response = await axios.post(
         URL,
-        { search: term },
+        { search: term.trim() },
         { withCredentials: true }
       );
 
@@ -92,6 +94,7 @@ const Sidebar = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsSearchModalOpen(false);
+    setSearchTerm("");
   };
 
   const handleUploadPhoto = async ({ file }) => {
@@ -206,6 +209,7 @@ const Sidebar = () => {
               >
                 <div className="flex items-center space-x-5">
                   <Avatar
+                    userId={user?._id}
                     name={user.name}
                     imgUrl={user.dp}
                     width={40}
