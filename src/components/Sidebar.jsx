@@ -180,7 +180,7 @@ const Sidebar = () => {
       </div>
 
       <Modal
-        title="Search Users"
+        title="Search a user"
         open={isSearchModalOpen}
         onOk={handleCancel}
         onCancel={handleCancel}
