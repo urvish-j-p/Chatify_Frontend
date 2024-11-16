@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
@@ -12,6 +12,7 @@ import { IoClose } from "react-icons/io5";
 import { Spin } from "antd";
 import chatifyBackground from "../assets/chatifyBackground.jpeg";
 import { IoMdSend } from "react-icons/io";
+import moment from "moment";
 
 const Message = () => {
   const params = useParams();
@@ -36,6 +37,18 @@ const Message = () => {
     imageUrl: "",
     videoUrl: "",
   });
+
+  const [allMessage, setAllMessage] = useState([]);
+  const currentMessage = useRef(null);
+
+  useEffect(() => {
+    if (currentMessage.current) {
+      currentMessage.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  }, [allMessage]);
 
   const toggleForm = () => {
     setIsFormOpen((prev) => !prev);
@@ -107,9 +120,18 @@ const Message = () => {
 
     if (message?.text || message?.imageUrl || message?.videoUrl) {
       if (socketConnection) {
-        socketConnection.emit("new message", {
+        socketConnection.emit("newMessage", {
           sender: user?._id,
           receiver: params?.userId,
+          text: message?.text,
+          imageUrl: message?.imageUrl,
+          videoUrl: message?.videoUrl,
+          msgByUserId: user?._id,
+        });
+        setMessage({
+          text: "",
+          imageUrl: "",
+          videoUrl: "",
         });
       }
     }
@@ -120,6 +142,9 @@ const Message = () => {
       socketConnection.emit("messagePage", params.userId);
       socketConnection.on("messageUser", (data) => {
         setUserData(data);
+      });
+      socketConnection.on("message", (data) => {
+        setAllMessage(data);
       });
     }
   }, [socketConnection, params?.userId, user]);
@@ -165,8 +190,41 @@ const Message = () => {
       </header>
 
       <section className="h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar relative bg-slate-200 bg-opacity-50">
+        <div className="flex flex-col gap-2 py-2 mx-2" ref={currentMessage}>
+          {allMessage?.map((msg, index) => {
+            return (
+              <div
+                key={index}
+                className={`bg-white p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
+                  user?._id === msg?.msgByUserId ? "ml-auto bg-teal-100" : ""
+                }`}
+              >
+                <div className="w-full relative z-50">
+                  {msg?.imageUrl && (
+                    <img
+                      src={msg?.imageUrl}
+                      className="w-full h-full object-scale-down"
+                    />
+                  )}
+                  {msg?.videoUrl && (
+                    <video
+                      src={msg.videoUrl}
+                      className="w-full h-full object-scale-down"
+                      controls
+                    />
+                  )}
+                </div>
+                <p className="px-2">{msg?.text}</p>
+                <p className="text-xs ml-auto w-fit">
+                  {moment(msg?.createdAt).format("hh:mm")}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
         {message?.imageUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-hidden">
+          <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-hidden z-50">
             <div
               className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
               onClick={handleClearImage}
@@ -183,7 +241,7 @@ const Message = () => {
           </div>
         )}
         {message?.videoUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-hidden">
+          <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-hidden z-50">
             <div
               className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
               onClick={handleClearVideo}
@@ -196,15 +254,15 @@ const Message = () => {
                 className="aspect-square w-full h-full max-w-sm m-2 object-scale-down"
                 controls
                 muted
-                autoplay
+                autoPlay
               />
             </div>
           </div>
         )}
-        <div className="w-full h-full flex justify-center items-center">
+
+        <div className="w-full h-full flex justify-center items-center sticky bottom-0">
           <Spin spinning={loading} />
         </div>
-        {/* show all messages */}
       </section>
 
       <section className="h-16 bg-white flex items-center px-4">
