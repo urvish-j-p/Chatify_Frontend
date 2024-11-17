@@ -7,9 +7,10 @@ import Avatar from "./Avatar";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Input, Button, Upload, notification, List } from "antd";
 import axios from "axios";
-import { setUser } from "../redux/userSlice";
+import { logout, setUser } from "../redux/userSlice";
 import uploadFile from "../helper/uploadFile";
 import { FiArrowUpLeft } from "react-icons/fi";
+import { FaImage, FaVideo } from "react-icons/fa6";
 
 const Sidebar = () => {
   const user = useSelector((state) => state?.user);
@@ -24,6 +25,10 @@ const Sidebar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
+
+  const socketConnection = useSelector(
+    (state) => state?.user?.socketConnection
+  );
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -112,6 +117,39 @@ const Sidebar = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/email");
+    localStorage.clear();
+  };
+
+  useEffect(() => {
+    if (socketConnection) {
+      socketConnection.emit("sidebar", user?._id);
+      socketConnection.on("conversation", (data) => {
+        const userConvData = data?.map((conv) => {
+          if (conv?.sender?._id === conv?.receiver?._id) {
+            return {
+              ...conv,
+              userDetails: conv?.sender,
+            };
+          } else if (conv?.receiver?._id !== user?._id) {
+            return {
+              ...conv,
+              userDetails: conv?.receiver,
+            };
+          } else {
+            return {
+              ...conv,
+              userDetails: conv?.sender,
+            };
+          }
+        });
+        setAllUser(userConvData);
+      });
+    }
+  }, [socketConnection, user, allUser]);
+
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr] bg-white">
       <div className="bg-slate-100 w-12 h-full rounded-tr-lg rounded-br-lg py-5 text-slate-600 flex flex-col justify-between">
@@ -149,6 +187,7 @@ const Sidebar = () => {
           <button
             className="w-10 h-12 flex justify-center items-center cursor-pointer hover:bg-slate-200 rounded"
             title="Logout"
+            onClick={handleLogout}
           >
             <span className="-ml-2">
               <BiLogOut size={25} />
@@ -165,7 +204,7 @@ const Sidebar = () => {
         <div className="bg-slate-200 p-[0.5px]"></div>
 
         <div className="h-[calc(100vh-65px)] overflow-x-hidden overflow-y-auto scrollbar">
-          {allUser.length === 0 && (
+          {allUser?.length === 0 && (
             <div className="mt-20">
               <div className="flex justify-center items-center my-4 text-slate-500">
                 <FiArrowUpLeft size={50} />
@@ -176,6 +215,60 @@ const Sidebar = () => {
               </p>
             </div>
           )}
+
+          {allUser?.map((conv) => {
+            return (
+              <NavLink
+                to={"/" + conv?.userDetails?._id}
+                key={conv?._id}
+                className="flex items-center gap-2 py-3 px-2 border border-transparent hover:border-primary rounded cursor-pointer hover:bg-slate-100"
+              >
+                <div>
+                  <Avatar
+                    imgUrl={conv?.userDetails?.dp}
+                    name={conv?.userDetails?.name}
+                    width={40}
+                    height={40}
+                  />
+                </div>
+
+                <div>
+                  <h3 className="text-ellipsis line-clamp-1 font-semibold">
+                    {conv?.userDetails?.name}
+                  </h3>
+
+                  <div className="text-slate-500 text-xs flex items-center gap-1">
+                    <div>
+                      {conv?.lastMsg?.imageUrl && (
+                        <div className="flex items-center gap-1">
+                          <span>
+                            <FaImage />
+                          </span>
+                          {!conv?.lastMsg?.text && <span>Image</span>}
+                        </div>
+                      )}
+                      {conv?.lastMsg?.videoUrl && (
+                        <div className="flex items-center gap-1">
+                          <span>
+                            <FaVideo />
+                          </span>
+                          {!conv?.lastMsg?.text && <span>Video</span>}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-ellipsis line-clamp-1">
+                      {conv?.lastMsg?.text}
+                    </p>
+                  </div>
+                </div>
+                {conv?.unseenMsg > 0 && (
+                  <p className="text-xs w-5 h-5 flex justify-center items-center ml-auto p-1 bg-primary text-white font-semibold rounded-full">
+                    {conv?.unseenMsg}
+                  </p>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
       </div>
 

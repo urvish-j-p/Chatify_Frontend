@@ -140,9 +140,13 @@ const Message = () => {
   useEffect(() => {
     if (socketConnection) {
       socketConnection.emit("messagePage", params.userId);
+
+      socketConnection.emit("seen", params.userId);
+
       socketConnection.on("messageUser", (data) => {
         setUserData(data);
       });
+
       socketConnection.on("message", (data) => {
         setAllMessage(data);
       });
@@ -195,8 +199,10 @@ const Message = () => {
             return (
               <div
                 key={index}
-                className={`bg-white p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
-                  user?._id === msg?.msgByUserId ? "ml-auto bg-teal-100" : ""
+                className={` p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
+                  user?._id === msg?.msgByUserId
+                    ? "ml-auto bg-teal-100"
+                    : "bg-white"
                 }`}
               >
                 <div className="w-full relative z-50">
@@ -214,7 +220,7 @@ const Message = () => {
                     />
                   )}
                 </div>
-                <p className="px-2">{msg?.text}</p>
+                <p className="px-2 relative z-50">{msg?.text}</p>
                 <p className="text-xs ml-auto w-fit">
                   {moment(msg?.createdAt).format("hh:mm")}
                 </p>
