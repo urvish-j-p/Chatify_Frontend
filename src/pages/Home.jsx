@@ -51,6 +51,10 @@ const Home = () => {
       auth: {
         token: localStorage.getItem("token"),
       },
+      reconnection: true, // Enable automatic reconnections
+      reconnectionAttempts: 5, // Retry up to 5 times
+      reconnectionDelay: 1000, // Initial delay between attempts (1 second)
+      reconnectionDelayMax: 5000, // Maximum delay between attempts (5 seconds)
     });
 
     socketConnection.on("onlineUser", (data) => {
