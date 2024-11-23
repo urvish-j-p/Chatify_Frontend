@@ -57,17 +57,41 @@ const Home = () => {
       reconnectionDelayMax: 5000, // Maximum delay between attempts (5 seconds)
     });
 
+    // On connection
+    socketConnection.on("connect", () => {
+      console.log("Socket connected with ID:", socketConnection.id);
+    });
+
+    // Handle online users
     socketConnection.on("onlineUser", (data) => {
-      console.log(data);
+      console.log("Online users:", data);
       dispatch(setOnlineUser(data));
     });
 
+    // Handle disconnect and reconnection
+    socketConnection.on("disconnect", (reason) => {
+      console.warn("Socket disconnected:", reason);
+      if (reason === "io server disconnect") {
+        // Attempt reconnection if token might be invalid
+        console.log("Reauthenticating socket...");
+        socketConnection.auth.token = localStorage.getItem("token");
+        socketConnection.connect();
+      }
+    });
+
+    socketConnection.on("reconnect_attempt", (attempt) => {
+      console.log(`Reconnection attempt ${attempt}`);
+    });
+
+    // Dispatch the socket connection to the store
     dispatch(setSocketConnection(socketConnection));
 
+    // Cleanup function to disconnect the socket on unmount
     return () => {
+      console.log("Disconnecting socket...");
       socketConnection.disconnect();
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
