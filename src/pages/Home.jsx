@@ -48,6 +48,7 @@ const Home = () => {
 
   useEffect(() => {
     const socketConnection = io("https://chatify-backend-by-urvish.vercel.app", {
+      transports: ["websocket"],
       auth: {
         token: localStorage.getItem("token"),
       },
@@ -91,7 +92,7 @@ const Home = () => {
       console.log("Disconnecting socket...");
       socketConnection.disconnect();
     };
-  }, [dispatch]);
+  }, []);
 
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
