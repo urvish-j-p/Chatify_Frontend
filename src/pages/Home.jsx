@@ -47,49 +47,20 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const socketConnection = io("https://chatify-backend-by-urvish.vercel.app", {
-      transports: ["websocket"],
+    const socketConnection = io(import.meta.env.VITE_BACKEND_URL, {
       auth: {
         token: localStorage.getItem("token"),
       },
-      reconnection: true, // Enable automatic reconnections
-      reconnectionAttempts: 5, // Retry up to 5 times
-      reconnectionDelay: 1000, // Initial delay between attempts (1 second)
-      reconnectionDelayMax: 5000, // Maximum delay between attempts (5 seconds)
     });
 
-    // On connection
-    socketConnection.on("connect", () => {
-      console.log("Socket connected with ID:", socketConnection.id);
-    });
-
-    // Handle online users
     socketConnection.on("onlineUser", (data) => {
-      console.log("Online users:", data);
+      console.log(data);
       dispatch(setOnlineUser(data));
     });
 
-    // Handle disconnect and reconnection
-    socketConnection.on("disconnect", (reason) => {
-      console.warn("Socket disconnected:", reason);
-      if (reason === "io server disconnect") {
-        // Attempt reconnection if token might be invalid
-        console.log("Reauthenticating socket...");
-        socketConnection.auth.token = localStorage.getItem("token");
-        socketConnection.connect();
-      }
-    });
-
-    socketConnection.on("reconnect_attempt", (attempt) => {
-      console.log(`Reconnection attempt ${attempt}`);
-    });
-
-    // Dispatch the socket connection to the store
     dispatch(setSocketConnection(socketConnection));
 
-    // Cleanup function to disconnect the socket on unmount
     return () => {
-      console.log("Disconnecting socket...");
       socketConnection.disconnect();
     };
   }, []);
