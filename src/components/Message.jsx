@@ -157,7 +157,7 @@ const Message = () => {
       style={{ backgroundImage: `url(${chatifyBackground})` }}
       className="bg-no-repeat bg-cover"
     >
-      <header className="sticky top-0 h-16 bg-white flex justify-between items-center px-4 z-55">
+      <header className="sticky top-0 h-16 bg-white flex justify-between items-center px-4 z-[60]">
         <div className="flex items-center gap-4 z-60">
           <Link to={"/"} className="lg:hidden">
             <FaAngleLeft />
@@ -265,7 +265,7 @@ const Message = () => {
         </div>
       </section>
 
-      <section className="h-16 bg-white flex items-center px-4 relative z-50 sm:bottom-0">
+      <section className="h-16 bg-white flex items-center px-4 sm:fixed sm:bottom-0 sm:left-0 sm:w-full z-[50]">
         <div className="realtive">
           <button
             className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-primary hover:text-white cursor-pointer"
