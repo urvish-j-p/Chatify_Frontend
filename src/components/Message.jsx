@@ -157,8 +157,8 @@ const Message = () => {
       style={{ backgroundImage: `url(${chatifyBackground})` }}
       className="bg-no-repeat bg-cover"
     >
-      <header className="sticky top-0 h-16 bg-white flex justify-between items-center px-4 z-60">
-        <div className="flex items-center gap-4">
+      <header className="sticky top-0 h-16 bg-white flex justify-between items-center px-4 z-55">
+        <div className="flex items-center gap-4 z-60">
           <Link to={"/"} className="lg:hidden">
             <FaAngleLeft />
           </Link>
@@ -203,13 +203,13 @@ const Message = () => {
                   {msg?.imageUrl && (
                     <img
                       src={msg?.imageUrl}
-                      className="w-full h-full object-scale-down"
+                      className="w-full h-full object-scale-down mb-2"
                     />
                   )}
                   {msg?.videoUrl && (
                     <video
                       src={msg.videoUrl}
-                      className="w-full h-full object-scale-down"
+                      className="w-full h-full object-scale-down mb-2"
                       controls
                     />
                   )}
@@ -265,7 +265,7 @@ const Message = () => {
         </div>
       </section>
 
-      <section className="h-16 bg-white flex items-center px-4">
+      <section className="h-16 bg-white flex items-center px-4 relative z-50 sm:bottom-0">
         <div className="realtive">
           <button
             className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-primary hover:text-white cursor-pointer"
@@ -275,7 +275,7 @@ const Message = () => {
           </button>
 
           {isFormOpen && (
-            <div className="bg-white shadow rounded absolute bottom-14 w-36 p-2">
+            <div className="bg-white shadow rounded absolute bottom-14 w-36 p-2 z-55">
               <form>
                 <label
                   htmlFor="uploadImage"
