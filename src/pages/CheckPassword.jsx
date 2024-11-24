@@ -107,15 +107,6 @@ const CheckPassword = () => {
             Login
           </button>
         </form>
-        <p className="my-3 flex justify-center items-center">
-          Forgot password?
-          <span
-            className="hover:text-primary font-semibold cursor-pointer ml-1"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Reset
-          </span>
-        </p>
       </div>
     </div>
   );

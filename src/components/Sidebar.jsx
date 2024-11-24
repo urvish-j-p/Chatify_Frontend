@@ -198,7 +198,7 @@ const Sidebar = () => {
 
       <div className="w-full">
         <div className="h-16 flex items-center">
-          <h2 className="text-xl font-bold p-4 text-slate-800">Message</h2>
+          <h2 className="text-xl font-bold p-4 text-primary">Chatify</h2>
         </div>
 
         <div className="bg-slate-200 p-[0.5px]"></div>
