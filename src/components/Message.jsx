@@ -282,7 +282,7 @@ const Message = () => {
         </div>
       </section>
 
-      <section className="h-16 bg-white flex items-center px-4 z-[50]">
+      <section className="h-16 bg-white flex items-center px-4 relative z-[60]">
         <div className="realtive">
           <button
             className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-primary hover:text-white cursor-pointer"
@@ -294,7 +294,7 @@ const Message = () => {
           {isFormOpen && (
             <div
               ref={formRef}
-              className="bg-white shadow rounded absolute bottom-14 w-36 p-2 z-55"
+              className="bg-white shadow rounded absolute bottom-14 w-36 p-2 z-60"
             >
               <form>
                 <label
