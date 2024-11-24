@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
-import { HiDotsVertical } from "react-icons/hi";
 import { FaAngleLeft } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
 import { FaImage } from "react-icons/fa";
@@ -44,7 +43,7 @@ const Message = () => {
   useEffect(() => {
     if (currentMessage.current) {
       currentMessage.current.scrollIntoView({
-        behavior: "smooth",
+        behavior: "auto",
         block: "end",
       });
     }
@@ -186,14 +185,9 @@ const Message = () => {
             </p>
           </div>
         </div>
-        <div>
-          <button className="cursor-pointer hover:text-primary">
-            <HiDotsVertical />
-          </button>
-        </div>
       </header>
 
-      <section className="h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar relative bg-slate-200 bg-opacity-50">
+      <section className="max-h-[calc(100vh-128px)] min-h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar relative bg-slate-200 bg-opacity-50">
         <div className="flex flex-col gap-2 py-2 mx-2" ref={currentMessage}>
           {allMessage?.map((msg, index) => {
             return (
