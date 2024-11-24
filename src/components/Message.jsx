@@ -29,6 +29,7 @@ const Message = () => {
   });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const formRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   const [message, setMessage] = useState({
@@ -52,6 +53,22 @@ const Message = () => {
   const toggleForm = () => {
     setIsFormOpen((prev) => !prev);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        setIsFormOpen(false);
+      }
+    };
+
+    if (isFormOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFormOpen]);
 
   const handleUploadImage = async (e) => {
     setLoading(true);
@@ -104,7 +121,7 @@ const Message = () => {
   };
 
   const handleMessageChange = (e) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
 
     setMessage((prev) => {
       return {
@@ -260,12 +277,12 @@ const Message = () => {
           </div>
         )}
 
-        <div className="w-full h-full flex justify-center items-center sticky bottom-0">
+        <div className="w-full h-full flex justify-center items-center sticky bottom-2">
           <Spin spinning={loading} />
         </div>
       </section>
 
-      <section className="h-16 bg-white flex items-center px-4 sm:fixed sm:bottom-0 sm:left-0 sm:w-full z-[50]">
+      <section className="h-16 bg-white flex items-center px-4 z-[50]">
         <div className="realtive">
           <button
             className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-primary hover:text-white cursor-pointer"
@@ -275,7 +292,10 @@ const Message = () => {
           </button>
 
           {isFormOpen && (
-            <div className="bg-white shadow rounded absolute bottom-14 w-36 p-2 z-55">
+            <div
+              ref={formRef}
+              className="bg-white shadow rounded absolute bottom-14 w-36 p-2 z-55"
+            >
               <form>
                 <label
                   htmlFor="uploadImage"
@@ -299,12 +319,14 @@ const Message = () => {
                 <input
                   type="file"
                   id="uploadImage"
+                  accept="image/*"
                   onChange={handleUploadImage}
                   className="hidden"
                 />
                 <input
                   type="file"
                   id="uploadVideo"
+                  accept="video/*"
                   onChange={handleUploadVideo}
                   className="hidden"
                 />
